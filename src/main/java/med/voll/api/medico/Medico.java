@@ -4,7 +4,6 @@ import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 import med.voll.api.endereco.Endereco;
 
 @Table(name = "medicos")
@@ -25,8 +24,10 @@ public class Medico {
     private Especialidade especialidade;
     @Embedded
     private Endereco endereco;
+    private Boolean ativo;
 
     public Medico(DadosCadastroMedico dados) {
+        this.ativo = true;
         this.nome = dados.nome();
         this.email = dados.email();
         this.telefone = dados.telefone();
@@ -93,6 +94,14 @@ public class Medico {
         this.endereco = endereco;
     }
 
+    public Boolean getAtivo() {
+        return ativo;
+    }
+
+    public void setAtivo(Boolean ativo) {
+        this.ativo = ativo;
+    }
+
     public void atualizarInformacoes(DadosAtualizacaoMedico dados) {
         if(dados.nome() != null){
             this.nome = dados.nome();
@@ -103,5 +112,9 @@ public class Medico {
         if(dados.endereco() != null){
             this.endereco.atualizarInformacoes(dados.endereco());
         }
+    }
+
+    public void excluir() {
+        this.ativo = false;
     }
 }
