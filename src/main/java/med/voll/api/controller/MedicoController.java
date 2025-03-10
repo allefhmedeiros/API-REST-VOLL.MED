@@ -35,5 +35,10 @@ public class MedicoController {
         var medico = reposiroty.getReferenceById(dados.id());                                                           //CONSULTA DE DADOS DO MÉDICO QUE SERÁ ATUALIZADO.
         medico.atualizarInformacoes(dados);
     }
+    @DeleteMapping("/{id}")
+    @Transactional
+    public void excluir(@PathVariable Long id){
+        reposiroty.deleteById(id);
+    }
 
 }
