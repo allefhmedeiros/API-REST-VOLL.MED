@@ -8,8 +8,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
+import org.springframework.web.util.UriComponentsBuilder;
 
 @RestController
 @RequestMapping("/medicos")
@@ -20,8 +19,11 @@ public class MedicoController {
 
     @PostMapping
     @Transactional
-    public ResponseEntity cadastrar(@RequestBody @Valid DadosCadastroMedico dados){
-        reposiroty.save(new Medico(dados));
+    public ResponseEntity cadastrar(@RequestBody @Valid DadosCadastroMedico dados, UriComponentsBuilder uriBuilder){
+        var medico = new Medico(dados);
+        reposiroty.save(medico);
+        var uri = uriBuilder.path("/medicos/{id}").buildAndExpand(medico.getId()).toUri() ;
+        return ResponseEntity.created(uri).body(new DadosDetalhamentoMedico(medico));
     }
 
     @GetMapping
@@ -44,6 +46,13 @@ public class MedicoController {
         var medico = reposiroty.getReferenceById(id);
         medico.excluir();
         return ResponseEntity.noContent().build();  //BOA PRÁTICA --> DEVOLVER CÓDIGO 204 NO CONTENT
+        //reposiroty.deleteById(id);
+    }
+
+    @GetMapping("/{id}")
+    public ResponseEntity detalhar(@PathVariable Long id){
+        var medico = reposiroty.getReferenceById(id);
+        return ResponseEntity.ok(new DadosDetalhamentoMedico(medico));  //BOA PRÁTICA --> DEVOLVER CÓDIGO 204 NO CONTENT
         //reposiroty.deleteById(id);
     }
 
