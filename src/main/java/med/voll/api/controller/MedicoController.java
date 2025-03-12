@@ -6,6 +6,7 @@ import med.voll.api.medico.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -19,27 +20,30 @@ public class MedicoController {
 
     @PostMapping
     @Transactional
-    public void cadastrar(@RequestBody @Valid DadosCadastroMedico dados){
+    public ResponseEntity cadastrar(@RequestBody @Valid DadosCadastroMedico dados){
         reposiroty.save(new Medico(dados));
     }
 
     @GetMapping
-    public Page<DadosListagemMedico> listar(Pageable paginacao){
-        return reposiroty.findAllByAtivoTrue(paginacao).map(DadosListagemMedico::new);
+    public ResponseEntity<Page<DadosListagemMedico>> listar(Pageable paginacao){
+        var page = reposiroty.findAllByAtivoTrue(paginacao).map(DadosListagemMedico::new);
+        return ResponseEntity.ok(page);     //BOAS PRÁTICAS --> VAI DEVOLVER O CÓDIGO 200 E  PAGINAÇÃO SOLICITADA.
     }
 
     @PutMapping
     @Transactional
-    public void atualizar(@RequestBody @Valid DadosAtualizacaoMedico dados){
+    public ResponseEntity atualizar(@RequestBody @Valid DadosAtualizacaoMedico dados){
         //CONSULTA DE DADOS DO MÉDICO QUE SERÁ ATUALIZADO.
-        var medico = reposiroty.getReferenceById(dados.id());                                                           //CONSULTA DE DADOS DO MÉDICO QUE SERÁ ATUALIZADO.
+        var medico = reposiroty.getReferenceById(dados.id());      //CONSULTA DE DADOS DO MÉDICO QUE SERÁ ATUALIZADO.
         medico.atualizarInformacoes(dados);
+        return ResponseEntity.ok(new DadosDetalhamentoMedico(medico));
     }
     @DeleteMapping("/{id}")
     @Transactional
-    public void excluir(@PathVariable Long id){
+    public ResponseEntity excluir(@PathVariable Long id){
         var medico = reposiroty.getReferenceById(id);
         medico.excluir();
+        return ResponseEntity.noContent().build();  //BOA PRÁTICA --> DEVOLVER CÓDIGO 204 NO CONTENT
         //reposiroty.deleteById(id);
     }
 
